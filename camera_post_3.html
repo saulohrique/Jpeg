@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera Settings Post</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #f0ede8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 60px;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+  }
+
+  .page-label {
+    color: #aaa9a5;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: #111;
+    width: 100%;
+    max-width: 420px;
+    border: 1px solid #1e1e1e;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  }
+
+  .settings-bar {
+    padding: 20px 28px 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid #1a1a1a;
+  }
+
+  .setting-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .setting-col:first-child { align-items: flex-start; }
+  .setting-col:last-child  { align-items: flex-end; }
+
+  .label {
+    font-size: 8.5px;
+    letter-spacing: 2.5px;
+    color: #555;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    color: #ececec;
+    line-height: 1;
+    cursor: text;
+    outline: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s, color .2s;
+    min-width: 10px;
+  }
+  .value:focus { color:#fff; border-bottom-color:#c0392b; }
+
+  .photo-area {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/5;
+    background: #161616;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .photo-area img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .photo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: #2e2e2e;
+    transition: color .25s;
+    pointer-events: none;
+  }
+  .photo-area:hover .photo-placeholder { color: #484848; }
+  .photo-placeholder svg { width: 40px; height: 40px; }
+  .photo-placeholder span {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .photo-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: all .25s;
+  }
+  .photo-area:hover .photo-overlay {
+    opacity: 1;
+    background: rgba(0,0,0,.4);
+  }
+
+  .change-btn {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    color: #ddd;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+  }
+
+  .camera-bar {
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid #1a1a1a;
+  }
+
+  .camera-name {
+    font-size: 10.5px;
+    letter-spacing: 4px;
+    color: #777;
+    text-transform: uppercase;
+    cursor: text;
+    font-weight: 500;
+    outline: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .2s, color .2s;
+  }
+  .camera-name:focus { color:#aaa; border-bottom-color:#c0392b; }
+
+  .caption-section {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .caption-header {
+    font-size: 9px;
+    color: #999895;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  textarea {
+    background: #e8e4de;
+    border: 1px solid #d8d4ce;
+    color: #888;
+    font-size: 12px;
+    line-height: 1.7;
+    padding: 14px 16px;
+    width: 100%;
+    resize: none;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+  textarea:focus { outline: none; border-color: #c8c4be; color: #666; }
+
+  .hint {
+    margin-top: 12px;
+    font-size: 9px;
+    color: #aaa9a5;
+    letter-spacing: 2.5px;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .save-btn {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    color: #0a0a0a;
+    border: none;
+    padding: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .save-btn:hover { background: #ddd; }
+  .save-btn:disabled { background: #1a1a1a; color: #444; cursor: wait; }
+
+  #fileInput { display: none; }
+</style>
+</head>
+<body>
+
+<p class="page-label">&#10022; clique nos textos para editar</p>
+
+<div class="card" id="card">
+  <div class="settings-bar">
+    <div class="setting-col">
+      <span class="label">Lente</span>
+      <span class="value" contenteditable="true" spellcheck="false" id="lens">35MM</span>
+    </div>
+    <div class="setting-col">
+      <span class="label">Abertura</span>
+      <span class="value" contenteditable="true" spellcheck="false" id="aperture">F/1.4</span>
+    </div>
+    <div class="setting-col">
+      <span class="label">Velocidade</span>
+      <span class="value" contenteditable="true" spellcheck="false" id="speed">1/25</span>
+    </div>
+  </div>
+
+  <div class="photo-area" id="photoArea" onclick="document.getElementById('fileInput').click()">
+    <div class="photo-placeholder" id="placeholder">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+        <rect x="3" y="7" width="18" height="13" rx="2"/>
+        <circle cx="12" cy="13.5" r="3.5"/>
+        <path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7"/>
+      </svg>
+      <span>Adicionar foto</span>
+    </div>
+    <div class="photo-overlay">
+      <button class="change-btn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Trocar foto</button>
+    </div>
+  </div>
+
+  <div class="camera-bar">
+    <span class="camera-name" contenteditable="true" spellcheck="false" id="camera">CANON R6 MKII</span>
+  </div>
+</div>
+
+<div class="caption-section">
+  <div class="caption-header">Legenda</div>
+  <textarea rows="3">Algumas fotos minhas com as principais configuracoes usadas na hora dos cliques. E a principal pergunta que me pedem quando posto alguma foto especifica que acaba chamando mais atencao. Curtiu?</textarea>
+</div>
+
+<p class="hint">&#8593; todos os campos sao editaveis</p>
+<button class="save-btn" id="saveBtn">&#8595; Salvar como imagem</button>
+
+<input type="file" id="fileInput" accept="image/*">
+<canvas id="exportCanvas" style="display:none"></canvas>
+
+<script>
+  var uploadedImage = null;
+
+  document.getElementById('fileInput').addEventListener('change', function(e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev) {
+      var img = new Image();
+      img.onload = function() {
+        uploadedImage = img;
+        document.getElementById('placeholder').style.display = 'none';
+        var existing = document.querySelector('#photoArea img');
+        if (!existing) {
+          existing = document.createElement('img');
+          var pa = document.getElementById('photoArea');
+          pa.insertBefore(existing, pa.firstChild);
+        }
+        existing.src = ev.target.result;
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.querySelectorAll('[contenteditable]').forEach(function(el) {
+    el.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', function() {
+    document.activeElement.blur();
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Gerando...';
+
+    setTimeout(function() {
+      try { drawAndDownload(); }
+      catch(err) { alert('Erro: ' + err.message); }
+      btn.disabled = false;
+      btn.textContent = '\u2193 Salvar como imagem';
+    }, 200);
+  });
+
+  function drawAndDownload() {
+    var SCALE = 3;
+    var W = 420;
+    var settingsH = 92;
+    var photoH = Math.round(W * 5 / 4);
+    var cameraH = 56;
+    var totalH = settingsH + photoH + cameraH;
+
+    var canvas = document.getElementById('exportCanvas');
+    canvas.width  = W * SCALE;
+    canvas.height = totalH * SCALE;
+    var ctx = canvas.getContext('2d');
+    ctx.scale(SCALE, SCALE);
+
+    // Card background — light
+    ctx.fillStyle = '#f0ede8';
+    ctx.fillRect(0, 0, W, totalH);
+
+    // --- SETTINGS ---
+    var labels = ['LENTE', 'ABERTURA', 'VELOCIDADE'];
+    var vals = [
+      document.getElementById('lens').textContent.trim(),
+      document.getElementById('aperture').textContent.trim(),
+      document.getElementById('speed').textContent.trim()
+    ];
+    var xPos   = [28, W / 2, W - 28];
+    var aligns = ['left', 'center', 'right'];
+
+    for (var i = 0; i < 3; i++) {
+      ctx.textAlign = aligns[i];
+      ctx.fillStyle = '#999896';
+      ctx.font = '500 9px sans-serif';
+      ctx.fillText(labels[i], xPos[i], 30);
+
+      ctx.fillStyle = '#1a1a1a';
+      ctx.font = 'bold 36px sans-serif';
+      ctx.fillText(vals[i], xPos[i], 74);
+    }
+
+    // Divider below settings
+    ctx.strokeStyle = '#d8d4ce';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, settingsH - 0.5);
+    ctx.lineTo(W, settingsH - 0.5);
+    ctx.stroke();
+
+    // --- PHOTO ---
+    var photoY = settingsH;
+    if (uploadedImage) {
+      var srcW = uploadedImage.naturalWidth;
+      var srcH = uploadedImage.naturalHeight;
+      var dstW = W;
+      var dstH = photoH;
+      var sc = Math.max(dstW / srcW, dstH / srcH);
+      var sw = dstW / sc;
+      var sh = dstH / sc;
+      var sx = (srcW - sw) / 2;
+      var sy = (srcH - sh) / 2;
+      ctx.drawImage(uploadedImage, sx, sy, sw, sh, 0, photoY, dstW, dstH);
+    } else {
+      ctx.fillStyle = '#161616';
+      ctx.fillRect(0, photoY, W, photoH);
+      ctx.fillStyle = '#303030';
+      ctx.font = '500 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ADICIONE UMA FOTO', W / 2, photoY + photoH / 2);
+    }
+
+    // Divider above camera
+    var cameraY = settingsH + photoH;
+    ctx.strokeStyle = '#d8d4ce';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, cameraY + 0.5);
+    ctx.lineTo(W, cameraY + 0.5);
+    ctx.stroke();
+
+    // --- CAMERA BAR ---
+    ctx.fillStyle = '#f0ede8';
+    ctx.fillRect(0, cameraY, W, cameraH);
+
+    var camText = document.getElementById('camera').textContent.trim().toUpperCase();
+    ctx.fillStyle = '#999896';
+    ctx.font = '500 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(camText, W / 2, cameraY + 34);
+
+    // Download
+    var link = document.createElement('a');
+    link.download = 'camera-settings.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+</script>
+</body>
+</html>
